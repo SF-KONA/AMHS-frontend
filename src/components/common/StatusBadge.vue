@@ -14,9 +14,7 @@ const props = defineProps({
     },
 })
 
-const normalizedStatus = computed(() => {
-    return String(props.status).toUpperCase()
-})
+const normalizedStatus = computed(() => String(props.status).toUpperCase())
 
 const badgeClass = computed(() => {
     const classMap = {
@@ -24,6 +22,8 @@ const badgeClass = computed(() => {
         IDLE: 'is-idle',
         WARNING: 'is-warning',
         ERROR: 'is-error',
+        STOPPED: 'is-error',
+        MAINTENANCE: 'is-warning',
     }
 
     return classMap[normalizedStatus.value] || 'is-default'
@@ -35,6 +35,8 @@ const label = computed(() => {
         IDLE: '관심',
         WARNING: '경고',
         ERROR: '위험',
+        STOPPED: '정지',
+        MAINTENANCE: '정비',
     }
 
     return labelMap[normalizedStatus.value] || normalizedStatus.value

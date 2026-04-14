@@ -11,15 +11,15 @@ const routes = [
         component: () => import('../views/dashboard/DashboardView.vue'),
     },
     {
-        path: '/dashboard/:eqId',
+        path: '/equipment/:eqId',
         name: 'equipment-detail',
         component: () => import('../views/equipment/EquipmentDetailView.vue'),
     },
     {
-        path: '/equipment',
-        name: 'equipment',
-        component: () => import('../views/equipment/EquipmentDetailView.vue'),
-    },
+      path: '/equipment',
+     name: 'equipment',
+      component: () => import('../views/equipment/EquipmentListView.vue'),
+    },  
     {
         path: '/alerts',
         name: 'alerts',
