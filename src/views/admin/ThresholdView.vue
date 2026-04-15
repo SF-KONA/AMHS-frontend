@@ -16,15 +16,21 @@
                     <tbody>
                         <tr v-for="row in thresholdRows" :key="row.sensor">
                             <td>{{ row.sensor }}</td>
-                            <td><input v-model="row.idle" type="number" /></td>
-                            <td><input v-model="row.warning" type="number" /></td>
-                            <td><input v-model="row.error" type="number" /></td>
+                            <td><input v-model.number="row.idle" type="number" /></td>
+                            <td><input v-model.number="row.warning" type="number" /></td>
+                            <td><input v-model.number="row.error" type="number" /></td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="action-row">
-                    <button class="save-button">저장</button>
+                    <span v-if="saveMessage" class="save-message">
+                        {{ saveMessage }}
+                    </span>
+
+                    <button class="save-button" @click="handleSave">
+                        저장
+                    </button>
                 </div>
             </div>
         </div>
@@ -32,15 +38,37 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import AppLayout from '../../layouts/AppLayout.vue'
 
-const thresholdRows = ref([
+const STORAGE_KEY = 'threshold-settings'
+
+const defaultRows = [
     { sensor: 'PM10', idle: 30, warning: 50, error: 80 },
     { sensor: 'NTC', idle: 40, warning: 55, error: 70 },
     { sensor: 'CT1', idle: 10, warning: 15, error: 20 },
     { sensor: 'IR_TEMP_MAX', idle: 50, warning: 65, error: 80 },
-])
+]
+
+const thresholdRows = ref([...defaultRows])
+const saveMessage = ref('')
+
+onMounted(() => {
+    const saved = localStorage.getItem(STORAGE_KEY)
+
+    if (saved) {
+        thresholdRows.value = JSON.parse(saved)
+    }
+})
+
+function handleSave() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(thresholdRows.value))
+    saveMessage.value = '임계값이 저장되었습니다.'
+
+    setTimeout(() => {
+        saveMessage.value = ''
+    }, 2000)
+}
 </script>
 
 <style scoped>
@@ -88,7 +116,15 @@ const thresholdRows = ref([
 .action-row {
     margin-top: 16px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.save-message {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-normal);
 }
 
 .save-button {
@@ -100,5 +136,9 @@ const thresholdRows = ref([
     color: #fff;
     font-weight: 700;
     cursor: pointer;
+}
+
+.save-button:hover {
+    opacity: 0.92;
 }
 </style>
