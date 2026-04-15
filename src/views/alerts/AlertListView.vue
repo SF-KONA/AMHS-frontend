@@ -3,9 +3,14 @@
         <div class="page-section">
             <h2 class="page-title">알림 이력</h2>
 
+            <FilterBar
+                v-model="filterValues"
+                :filters="filters"
+            />
+
             <DataTable
                 :columns="columns"
-                :data="alertRows"
+                :data="filteredAlerts"
                 :loading="false"
             >
                 <template #level="{ row }">
@@ -33,13 +38,20 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import AppLayout from '../../layouts/AppLayout.vue'
+import FilterBar from '../../components/common/FilterBar.vue'
 import DataTable from '../../components/common/DataTable.vue'
 import StatusBadge from '../../components/common/StatusBadge.vue'
 import { useAlertStore } from '../../stores/alertStore'
 
 const alertStore = useAlertStore()
+
+const filterValues = ref({
+    level: '',
+    eqId: '',
+    acknowledged: '',
+})
 
 const columns = [
     { key: 'createdAt', label: '시각' },
@@ -51,7 +63,54 @@ const columns = [
     { key: 'action', label: '처리', slot: true },
 ]
 
-const alertRows = computed(() => alertStore.alertList)
+const filters = computed(() => {
+    const eqOptions = Array.from(
+        new Set(alertStore.alertList.map((alert) => alert.eqId))
+    ).map((eqId) => ({
+        value: eqId,
+        label: eqId,
+    }))
+
+    return [
+        {
+            key: 'level',
+            label: '등급',
+            options: [
+                { value: 'WARNING', label: '경고' },
+                { value: 'ERROR', label: '위험' },
+            ],
+        },
+        {
+            key: 'eqId',
+            label: '장비',
+            options: eqOptions,
+        },
+        {
+            key: 'acknowledged',
+            label: '확인 여부',
+            options: [
+                { value: 'false', label: '미확인' },
+                { value: 'true', label: '확인 완료' },
+            ],
+        },
+    ]
+})
+
+const filteredAlerts = computed(() => {
+    return alertStore.alertList.filter((alert) => {
+        const matchLevel =
+            !filterValues.value.level || alert.level === filterValues.value.level
+
+        const matchEqId =
+            !filterValues.value.eqId || alert.eqId === filterValues.value.eqId
+
+        const matchAcknowledged =
+            !filterValues.value.acknowledged ||
+            String(alert.acknowledged) === filterValues.value.acknowledged
+
+        return matchLevel && matchEqId && matchAcknowledged
+    })
+})
 
 function handleAcknowledge(alertId) {
     alertStore.acknowledgeAlert(alertId)
