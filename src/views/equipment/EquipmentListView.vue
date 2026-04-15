@@ -1,113 +1,71 @@
 <template>
     <AppLayout>
         <div class="page-section">
-            <h2 class="page-title">장비 목록</h2>
+            <h2 class="page-title">장비 상세</h2>
 
-            <FilterBar
-                v-model="filterValues"
-                :filters="filters"
-            />
+            <div class="detail-card">
+                <div class="detail-row">
+                    <span class="detail-label">장비 ID</span>
+                    <span class="detail-value">{{ route.params.eqId }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">장비 유형</span>
+                    <span class="detail-value">OHT</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">소속 Line</span>
+                    <span class="detail-value">LINE-1</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">현재 상태</span>
+                    <span class="detail-value">RUNNING</span>
+                </div>
+            </div>
 
-            <DataTable
-                :columns="columns"
-                :data="equipmentRows"
-                :loading="false"
-                @row-click="handleRowClick"
-            >
-                <template #status="{ row }">
-                    <StatusBadge :status="row.status" />
-                </template>
-            </DataTable>
+            <div class="tab-card">
+                <div class="tab-header">
+                    <button
+                        :class="['tab-button', { active: activeTab === 'sensor' }]"
+                        @click="activeTab = 'sensor'"
+                    >
+                        센서 차트
+                    </button>
+                    <button
+                        :class="['tab-button', { active: activeTab === 'alert-history' }]"
+                        @click="activeTab = 'alert-history'"
+                    >
+                        알림 히스토리
+                    </button>
+                </div>
+
+                <div class="tab-body">
+                    <div v-if="activeTab === 'sensor'" class="placeholder-box">
+                        FE1 센서 차트 탭이 들어갈 자리
+                    </div>
+
+                    <AlertHistoryTab
+                        v-else-if="activeTab === 'alert-history'"
+                        :eq-id="route.params.eqId"
+                    />
+                </div>
+            </div>
+
+            <router-link to="/dashboard" class="back-link">
+                ← 대시보드로 돌아가기
+            </router-link>
         </div>
     </AppLayout>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 import AppLayout from '../../layouts/AppLayout.vue'
-import FilterBar from '../../components/common/FilterBar.vue'
-import DataTable from '../../components/common/DataTable.vue'
-import StatusBadge from '../../components/common/StatusBadge.vue'
-import { useEquipmentStore } from '../../stores/equipmentStore'
+import AlertHistoryTab from './AlertHistoryTab.vue'
 
-const router = useRouter()
-const store = useEquipmentStore()
-
-const filterValues = ref({
-    fabId: '',
-    lineId: '',
-    status: '',
-})
-
-const filters = computed(() => {
-    const fabOptions = store.fabs.map((fab) => ({
-        value: fab.fabId,
-        label: fab.fabName,
-    }))
-
-    const lineMap = new Map()
-    store.fabs.forEach((fab) => {
-        fab.lines.forEach((line) => {
-            lineMap.set(line.lineId, {
-                value: line.lineId,
-                label: line.lineName,
-            })
-        })
-    })
-
-    const lineOptions = Array.from(lineMap.values())
-
-    return [
-        { key: 'fabId', label: 'Fab', options: fabOptions },
-        { key: 'lineId', label: 'Line', options: lineOptions },
-        {
-            key: 'status',
-            label: '상태',
-            options: [
-                { value: 'RUNNING', label: '정상' },
-                { value: 'STOPPED', label: '정지' },
-                { value: 'MAINTENANCE', label: '정비' },
-            ],
-        },
-    ]
-})
-
-const columns = [
-    { key: 'eqId', label: '장비코드' },
-    { key: 'eqType', label: '장비유형' },
-    { key: 'lineId', label: '라인' },
-    { key: 'status', label: '상태', slot: true },
-]
-
-const equipmentRows = computed(() => {
-    return store.equipmentList.filter((eq) => {
-        const matchFab =
-            !filterValues.value.fabId || eq.fabId === filterValues.value.fabId
-        const matchLine =
-            !filterValues.value.lineId || eq.lineId === filterValues.value.lineId
-        const matchStatus =
-            !filterValues.value.status || eq.status === filterValues.value.status
-
-        return matchFab && matchLine && matchStatus
-    })
-})
-
-function handleRowClick(row) {
-    router.push(`/dashboard/${row.eqId}`)
-}
-
-onMounted(() => {
-    if (!store.fabs.length) {
-        store.fetchFabs()
-    }
-
-    if (!store.equipmentList.length) {
-        store.fetchEquipment()
-    }
-})
+const route = useRoute()
+const activeTab = ref('sensor')
 </script>
-
 
 <style scoped>
 .page-section {
@@ -123,65 +81,87 @@ onMounted(() => {
     color: var(--color-text);
 }
 
-.page-section {
+.detail-card,
+.tab-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-size: 14px;
+    color: var(--color-text-muted);
+}
+
+.detail-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.tab-header {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 12px;
+}
+
+.tab-button {
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-bg);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.tab-button.active {
+    background: var(--color-text);
+    color: #ffffff;
+    border-color: var(--color-text);
+}
+
+.tab-body {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-.page-title {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--color-text);
-}
-
-.page-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
-    padding: 24px;
-}
-
-.page-title {
-    margin: 0 0 20px;
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--color-text);
-}
-
-.equipment-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.equipment-item {
+.placeholder-box {
+    min-height: 180px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    border: 1px dashed var(--color-border);
+    border-radius: 12px;
     background: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: 10px;
-    padding: 16px;
-}
-
-.equipment-info {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.equipment-id {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--color-text);
-}
-
-.equipment-meta {
-    display: flex;
-    gap: 10px;
-    font-size: 13px;
     color: var(--color-text-muted);
+    font-size: 14px;
+}
+
+.back-link {
+    color: var(--color-interest);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.back-link:hover {
+    text-decoration: underline;
 }
 </style>

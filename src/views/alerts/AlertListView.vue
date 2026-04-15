@@ -8,6 +8,10 @@
                 :filters="filters"
             />
 
+            <p class="history-guide">
+                최근 발생한 알림 이력을 표시합니다. 현재 장비 상태와 다를 수 있습니다.
+            </p>
+
             <DataTable
                 :columns="columns"
                 :data="filteredAlerts"
@@ -129,6 +133,17 @@ function mapLevelToStatus(level) {
 </script>
 
 <style scoped>
+.history-guide {
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--color-bg);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+}
+
 .page-section {
     display: flex;
     flex-direction: column;
