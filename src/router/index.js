@@ -37,6 +37,12 @@ const routes = [
         meta: { requiresAuth: true },
     },
     {
+        path: '/maintenance/new',
+        name: 'maintenance-create',
+        component: () => import('../views/maintenance/new/MaintenanceCreateView.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
         path: '/maintenance/:id',
         name: 'maintenance-detail',
         component: () => import('../views/maintenance/MaintenanceDetailView.vue'),
