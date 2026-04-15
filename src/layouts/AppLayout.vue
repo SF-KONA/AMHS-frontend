@@ -6,7 +6,12 @@
             <nav class="sidebar__nav">
                 <RouterLink to="/dashboard" class="nav-item" active-class="is-active">대시보드</RouterLink>
                 <RouterLink to="/equipment" class="nav-item" active-class="is-active">장비 목록</RouterLink>
-                <RouterLink to="/alerts" class="nav-item" active-class="is-active">알림 이력</RouterLink>
+                <RouterLink to="/alerts" class="nav-item nav-item--with-badge" active-class="is-active">
+                    <span>알림 이력</span>
+                    <span v-if="unreadCount > 0" class="nav-badge">
+                        {{ unreadCount }}
+                    </span>
+                </RouterLink>
                 <RouterLink to="/maintenance" class="nav-item" active-class="is-active">정비 목록</RouterLink>
                 <RouterLink to="/stats" class="nav-item" active-class="is-active">통계</RouterLink>
                 <RouterLink to="/login" class="nav-item" active-class="is-active">로그인</RouterLink>
@@ -29,8 +34,12 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
+import { useAlertStore } from '../stores/alertStore'
 
 const route = useRoute()
+const alertStore = useAlertStore()
+
+const unreadCount = computed(() => alertStore.unreadCount)
 
 const titleMap = {
     dashboard: '대시보드',
@@ -48,6 +57,28 @@ const pageTitle = computed(() => {
 </script>
 
 <style scoped>
+
+.nav-item--with-badge {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.nav-badge {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--color-danger);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .app-layout {
     min-height: 100vh;
     display: flex;
