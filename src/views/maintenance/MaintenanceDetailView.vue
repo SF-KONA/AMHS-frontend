@@ -10,15 +10,15 @@
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">장비</span>
-                    <span class="detail-value">OHT-03</span>
+                    <span class="detail-value">{{ currentOrder?.eqId }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">라인</span>
-                    <span class="detail-value">LINE-1</span>
+                    <span class="detail-value">{{ currentOrder?.lineId }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">우선순위</span>
-                    <span class="detail-value">HIGH</span>
+                    <span class="detail-value">{{ currentOrder?.priority }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">현재 상태</span>
@@ -47,14 +47,19 @@
                 <h3 class="section-title">조치 내용</h3>
 
                 <textarea
-                    v-model="actionMemo"
                     class="action-textarea"
+                    :value="currentOrder?.actionMemo || ''"
+                    @input="updateMemo"
                     placeholder="조치 내용을 입력하세요."
                 />
 
                 <div class="memo-footer">
                     <span class="memo-guide">
-                        {{ currentStatus === 'COMPLETED' ? '완료 처리 전 조치 내용을 꼭 확인하세요.' : '작업 진행 중 메모를 기록할 수 있습니다.' }}
+                        {{
+                            currentStatus === 'COMPLETED'
+                                ? '완료 처리 전 조치 내용을 꼭 확인하세요.'
+                                : '작업 진행 중 메모를 기록할 수 있습니다.'
+                        }}
                     </span>
                 </div>
             </div>
@@ -63,18 +68,28 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import AppLayout from '../../layouts/AppLayout.vue'
+import { useMaintenanceStore } from '../../stores/maintenanceStore'
 
 const route = useRoute()
+const maintenanceStore = useMaintenanceStore()
 
 const statusFlow = ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED']
-const currentStatus = ref('OPEN')
-const actionMemo = ref('')
+
+const currentOrder = computed(() =>
+    maintenanceStore.orderList.find((order) => order.orderId === route.params.id)
+)
+
+const currentStatus = computed(() => currentOrder.value?.status || 'OPEN')
 
 function changeStatus(status) {
-    currentStatus.value = status
+    maintenanceStore.updateOrderStatus(route.params.id, status)
+}
+
+function updateMemo(event) {
+    maintenanceStore.updateOrderMemo(route.params.id, event.target.value)
 }
 
 function getOrderStatusLabel(status) {

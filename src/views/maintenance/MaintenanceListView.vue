@@ -45,11 +45,15 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useMaintenanceStore } from '../../stores/maintenanceStore'
 import AppLayout from '../../layouts/AppLayout.vue'
 import FilterBar from '../../components/common/FilterBar.vue'
 import DataTable from '../../components/common/DataTable.vue'
 
 const router = useRouter()
+
+const maintenanceStore = useMaintenanceStore()
+
 
 const filterValues = ref({
     lineId: '',
@@ -87,39 +91,9 @@ const columns = [
     { key: 'status', label: '상태', slot: true },
 ]
 
-const rows = [
-    {
-        orderId: 'MO-001',
-        eqId: 'OHT-03',
-        lineId: 'LINE-1',
-        priority: 'HIGH',
-        status: 'OPEN',
-    },
-    {
-        orderId: 'MO-002',
-        eqId: 'OHT-11',
-        lineId: 'LINE-2',
-        priority: 'MEDIUM',
-        status: 'ASSIGNED',
-    },
-    {
-        orderId: 'MO-003',
-        eqId: 'AGV-07',
-        lineId: 'LINE-3',
-        priority: 'HIGH',
-        status: 'IN_PROGRESS',
-    },
-    {
-        orderId: 'MO-004',
-        eqId: 'AGV-12',
-        lineId: 'LINE-4',
-        priority: 'LOW',
-        status: 'COMPLETED',
-    },
-]
 
 const filteredRows = computed(() => {
-    return rows.filter((row) => {
+    return maintenanceStore.orderList.filter((row) => {
         const matchLine =
             !filterValues.value.lineId || row.lineId === filterValues.value.lineId
         const matchStatus =
