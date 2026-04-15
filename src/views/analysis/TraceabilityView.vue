@@ -15,7 +15,7 @@
                 </div>
 
                 <div class="mock-chart">
-                    <p>선택 기준: {{ groupBy }}</p>
+                    <p>선택 기준: {{ groupByLabel }}</p>
                     <p>여기에 그룹별 위험 비율 차트가 들어갈 예정</p>
                 </div>
 
@@ -28,7 +28,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="row in rows" :key="row.group">
+                        <tr v-for="row in currentRows" :key="row.group">
                             <td>{{ row.group }}</td>
                             <td>{{ row.riskRate }}</td>
                             <td>{{ row.count }}</td>
@@ -41,16 +41,49 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import AppLayout from '../../layouts/AppLayout.vue'
 
 const groupBy = ref('manufacturer')
 
-const rows = ref([
-    { group: 'A사', riskRate: '32%', count: 8 },
-    { group: 'B사', riskRate: '18%', count: 12 },
-    { group: 'C사', riskRate: '25%', count: 20 },
-])
+const mockDataMap = {
+    manufacturer: [
+        { group: 'A사', riskRate: '32%', count: 8 },
+        { group: 'B사', riskRate: '18%', count: 12 },
+        { group: 'C사', riskRate: '25%', count: 20 },
+    ],
+    installer: [
+        { group: '김정비', riskRate: '28%', count: 10 },
+        { group: '이정비', riskRate: '14%', count: 15 },
+        { group: '박정비', riskRate: '35%', count: 15 },
+    ],
+    installDate: [
+        { group: '2021~2022', riskRate: '30%', count: 11 },
+        { group: '2023~2024', riskRate: '19%', count: 17 },
+        { group: '2025~2026', riskRate: '12%', count: 12 },
+    ],
+    line: [
+        { group: 'LINE-1', riskRate: '22%', count: 10 },
+        { group: 'LINE-2', riskRate: '31%', count: 10 },
+        { group: 'LINE-3', riskRate: '15%', count: 10 },
+        { group: 'LINE-4', riskRate: '27%', count: 10 },
+    ],
+}
+
+const groupByLabelMap = {
+    manufacturer: '제조사별',
+    installer: '설치작업자별',
+    installDate: '설치기간별',
+    line: 'Line별',
+}
+
+const currentRows = computed(() => {
+    return mockDataMap[groupBy.value] || []
+})
+
+const groupByLabel = computed(() => {
+    return groupByLabelMap[groupBy.value] || groupBy.value
+})
 </script>
 
 <style scoped>
