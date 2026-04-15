@@ -4,40 +4,49 @@
             <div class="sidebar__logo">AMHS</div>
 
             <nav class="sidebar__nav">
-                <RouterLink to="/dashboard" class="nav-item" active-class="is-active">대시보드</RouterLink>
-                <RouterLink to="/equipment" class="nav-item" active-class="is-active">장비 목록</RouterLink>
+                <div class="nav-section">
+                    <p class="nav-section__title">메인 메뉴</p>
 
-                <RouterLink to="/alerts" class="nav-item nav-item--with-badge" active-class="is-active">
-                    <span>알림 이력</span>
-                    <span v-if="unreadAlertCount > 0" class="nav-badge">
-                        {{ unreadAlertCount }}
-                    </span>
-                </RouterLink>
+                    <RouterLink to="/dashboard" class="nav-item" active-class="is-active">대시보드</RouterLink>
+                    <RouterLink to="/equipment" class="nav-item" active-class="is-active">장비 목록</RouterLink>
 
-                <RouterLink to="/maintenance" class="nav-item" active-class="is-active">정비 목록</RouterLink>
-                <RouterLink to="/stats" class="nav-item" active-class="is-active">통계</RouterLink>
+                    <RouterLink to="/alerts" class="nav-item nav-item--with-badge" active-class="is-active">
+                        <span>알림 이력</span>
+                        <span v-if="unreadAlertCount > 0" class="nav-badge">
+                            {{ unreadAlertCount }}
+                        </span>
+                    </RouterLink>
 
-                <RouterLink
-                    v-if="isAdmin"
-                    to="/admin/thresholds"
-                    class="nav-item"
-                    active-class="is-active"
-                >
-                    임계값 설정
-                </RouterLink>
+                    <RouterLink to="/maintenance" class="nav-item" active-class="is-active">정비 목록</RouterLink>
+                    <RouterLink to="/stats" class="nav-item" active-class="is-active">통계</RouterLink>
+                </div>
 
-                <RouterLink
-                    v-if="isAdmin"
-                    to="/analysis/traceability"
-                    class="nav-item"
-                    active-class="is-active"
-                >
-                    장비 추적 분석
-                </RouterLink>
+                <div v-if="isAdmin" class="nav-section nav-section--admin">
+                    <p class="nav-section__title">관리자 기능</p>
 
-                <RouterLink v-if="!isLoggedIn" to="/login" class="nav-item" active-class="is-active">
-                    로그인
-                </RouterLink>
+                    <RouterLink
+                        to="/admin/thresholds"
+                        class="nav-item"
+                        active-class="is-active"
+                    >
+                        임계값 설정
+                    </RouterLink>
+
+                    <RouterLink
+                        to="/analysis/traceability"
+                        class="nav-item"
+                        active-class="is-active"
+                    >
+                        장비 추적 분석
+                    </RouterLink>
+                </div>
+
+                <div v-if="!isLoggedIn" class="nav-section">
+                    <p class="nav-section__title">계정</p>
+                    <RouterLink to="/login" class="nav-item" active-class="is-active">
+                        로그인
+                    </RouterLink>
+                </div>
             </nav>
         </aside>
 
@@ -106,6 +115,32 @@ function handleLogout() {
 </script>
 
 <style scoped>
+
+.nav-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nav-section + .nav-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-border);
+}
+
+.nav-section__title {
+    margin: 0 0 4px;
+    padding: 0 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.nav-section--admin .nav-section__title {
+    color: var(--color-danger);
+}
 
 .user-name {
     font-size: 13px;
