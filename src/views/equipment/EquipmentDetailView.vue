@@ -39,9 +39,10 @@
                 </div>
 
                 <div class="tab-body">
-                    <div v-if="activeTab === 'sensor'" class="placeholder-box">
-                        FE1 센서 차트 탭이 들어갈 자리
-                    </div>
+                    <SensorChartTab
+                        v-if="activeTab === 'sensor'"
+                        :eq-id="route.params.eqId"
+                    />
 
                     <AlertHistoryTab
                         v-else-if="activeTab === 'alert-history'"
@@ -62,6 +63,7 @@ import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import AppLayout from '../../layouts/AppLayout.vue'
 import AlertHistoryTab from './AlertHistoryTab.vue'
+import SensorChartTab from './SensorChartTab.vue'
 
 const route = useRoute()
 const activeTab = ref('sensor')
