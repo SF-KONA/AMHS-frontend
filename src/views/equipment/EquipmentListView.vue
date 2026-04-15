@@ -4,10 +4,17 @@
             <h2 class="page-title">장비 목록</h2>
 
             <div class="equipment-list">
-                <div v-for="eq in equipmentList" :key="eq.eqId" class="equipment-item">
+                <div
+                    v-for="eq in equipmentList"
+                    :key="eq.eqId"
+                    class="equipment-item"
+                >
                     <div class="equipment-info">
                         <div class="equipment-id">{{ eq.eqId }}</div>
-                        <div class="equipment-type">{{ eq.eqType }}</div>
+                        <div class="equipment-meta">
+                            <span>{{ eq.eqType }}</span>
+                            <span>{{ eq.lineId }}</span>
+                        </div>
                     </div>
 
                     <StatusBadge :status="eq.status" />
@@ -28,7 +35,9 @@ const store = useEquipmentStore()
 const equipmentList = computed(() => store.equipmentList)
 
 onMounted(() => {
-    store.fetchEquipment()
+    if (!store.equipmentList.length) {
+        store.fetchEquipment()
+    }
 })
 </script>
 
@@ -44,6 +53,7 @@ onMounted(() => {
     margin: 0 0 20px;
     font-size: 24px;
     font-weight: 700;
+    color: var(--color-text);
 }
 
 .equipment-list {
@@ -65,7 +75,7 @@ onMounted(() => {
 .equipment-info {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
 .equipment-id {
@@ -74,7 +84,9 @@ onMounted(() => {
     color: var(--color-text);
 }
 
-.equipment-type {
+.equipment-meta {
+    display: flex;
+    gap: 10px;
     font-size: 13px;
     color: var(--color-text-muted);
 }
