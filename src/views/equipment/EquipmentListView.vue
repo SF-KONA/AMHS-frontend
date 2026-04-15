@@ -1,38 +1,45 @@
 <template>
     <AppLayout>
-        <div class="page-card">
+        <div class="page-section">
             <h2 class="page-title">장비 목록</h2>
 
-            <div class="equipment-list">
-                <div
-                    v-for="eq in equipmentList"
-                    :key="eq.eqId"
-                    class="equipment-item"
-                >
-                    <div class="equipment-info">
-                        <div class="equipment-id">{{ eq.eqId }}</div>
-                        <div class="equipment-meta">
-                            <span>{{ eq.eqType }}</span>
-                            <span>{{ eq.lineId }}</span>
-                        </div>
-                    </div>
-
-                    <StatusBadge :status="eq.status" />
-                </div>
-            </div>
+            <DataTable
+                :columns="columns"
+                :data="equipmentRows"
+                :loading="false"
+                @row-click="handleRowClick"
+            >
+                <template #status="{ row }">
+                    <StatusBadge :status="row.status" />
+                </template>
+            </DataTable>
         </div>
     </AppLayout>
 </template>
 
 <script setup>
 import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import AppLayout from '../../layouts/AppLayout.vue'
+import DataTable from '../../components/common/DataTable.vue'
 import StatusBadge from '../../components/common/StatusBadge.vue'
 import { useEquipmentStore } from '../../stores/equipmentStore'
 
+const router = useRouter()
 const store = useEquipmentStore()
 
-const equipmentList = computed(() => store.equipmentList)
+const columns = [
+    { key: 'eqId', label: '장비코드' },
+    { key: 'eqType', label: '장비유형' },
+    { key: 'lineId', label: '라인' },
+    { key: 'status', label: '상태', slot: true },
+]
+
+const equipmentRows = computed(() => store.equipmentList)
+
+function handleRowClick(row) {
+    router.push(`/dashboard/${row.eqId}`)
+}
 
 onMounted(() => {
     if (!store.equipmentList.length) {
@@ -42,6 +49,19 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.page-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
 .page-card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
