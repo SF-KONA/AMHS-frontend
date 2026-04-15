@@ -1,5 +1,8 @@
 import { defineStore } from 'pinia'
 
+const TOAST_DURATION_MS = 5000
+let toastIdCounter = 0
+
 export const useAlertStore = defineStore('alert', {
     state: () => ({
         alertList: [
@@ -31,6 +34,7 @@ export const useAlertStore = defineStore('alert', {
                 acknowledged: true,
             },
         ],
+        toastQueue: [],
     }),
 
     getters: {
@@ -50,6 +54,28 @@ export const useAlertStore = defineStore('alert', {
 
         addAlert(alert) {
             this.alertList.unshift(alert)
+        },
+
+        pushToast(toast) {
+            const toastId = ++toastIdCounter
+            this.toastQueue.push({
+                toastId,
+                level: (toast && toast.level) || 'WARNING',
+                eqId: toast && toast.eqId,
+                sensorName: toast && toast.sensorName,
+                sensorValue: toast && toast.sensorValue,
+                message: toast && toast.message,
+            })
+            setTimeout(() => {
+                this.removeToast(toastId)
+            }, TOAST_DURATION_MS)
+        },
+
+        removeToast(toastId) {
+            const idx = this.toastQueue.findIndex((t) => t.toastId === toastId)
+            if (idx !== -1) {
+                this.toastQueue.splice(idx, 1)
+            }
         },
     },
 })
