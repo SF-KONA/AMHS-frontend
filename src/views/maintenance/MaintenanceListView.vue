@@ -3,6 +3,12 @@
         <div class="page-section">
             <h2 class="page-title">정비 오더 목록</h2>
 
+            <div class="top-action-row">
+                <router-link to="/maintenance/new" class="create-button">
+                    정비 오더 생성
+                </router-link>
+            </div>
+
             <div class="summary-cards">
                 <div class="summary-card">
                     <div class="summary-label">Line 1</div>
@@ -131,6 +137,23 @@ function getOrderStatusClass(status) {
 </script>
 
 <style scoped>
+
+.top-action-row {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.create-button {
+    display: inline-flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 8px;
+    background: var(--color-text);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+}
 
 .order-status-badge {
     display: inline-flex;

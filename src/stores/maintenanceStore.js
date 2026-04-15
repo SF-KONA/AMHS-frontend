@@ -52,5 +52,9 @@ export const useMaintenanceStore = defineStore('maintenance', {
                 target.actionMemo = memo
             }
         },
+
+        addOrder(order) {
+            this.orderList.unshift(order)
+        },
     },
 })
