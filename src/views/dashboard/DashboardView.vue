@@ -1,77 +1,80 @@
 <template>
-    <div class="dashboard">
-        <!-- 상태 카운트 카드 -->
-        <div class="status-summary">
-            <div class="status-card" style="border-left: 4px solid var(--color-normal)">
-                <span class="status-count">{{ statusCount.running }}</span>
-                <span class="status-label">가동</span>
-            </div>
-            <div class="status-card" style="border-left: 4px solid var(--color-danger)">
-                <span class="status-count">{{ statusCount.stopped }}</span>
-                <span class="status-label">정지</span>
-            </div>
-            <div class="status-card" style="border-left: 4px solid var(--color-warning)">
-                <span class="status-count">{{ statusCount.maintenance }}</span>
-                <span class="status-label">정비</span>
-            </div>
-            <div class="status-card" style="border-left: 4px solid var(--color-border)">
-                <span class="status-count">{{ statusCount.total }}</span>
-                <span class="status-label">전체</span>
-            </div>
-        </div>
-
-        <!-- Fab 탭 -->
-        <div class="fab-tabs">
-            <button
-                v-for="fab in fabs"
-                :key="fab.fabId"
-                :class="['fab-tab', { active: selectedFabId === fab.fabId }]"
-                @click="selectFab(fab.fabId)"
-            >
-                {{ fab.fabName }}
-            </button>
-        </div>
-
-        <!-- Line 패널 -->
-        <div class="line-panels">
-            <div v-for="line in currentLines" :key="line.lineId" class="line-panel">
-                <div class="line-header">
-                    <h3>{{ line.lineName }}</h3>
-                    <span class="line-type">{{ line.eqType }}</span>
-                    <span class="line-stats">
-                        가동 {{ getLineStats(line.lineId).running }} /
-                        정지 {{ getLineStats(line.lineId).stopped }} /
-                        정비 {{ getLineStats(line.lineId).maintenance }}
-                    </span>
+    <AppLayout>
+        <div class="dashboard">
+            <!-- 상태 카운트 카드 -->
+            <div class="status-summary">
+                <div class="status-card" style="border-left: 4px solid var(--color-normal)">
+                    <span class="status-count">{{ statusCount.running }}</span>
+                    <span class="status-label">가동</span>
                 </div>
+                <div class="status-card" style="border-left: 4px solid var(--color-danger)">
+                    <span class="status-count">{{ statusCount.stopped }}</span>
+                    <span class="status-label">정지</span>
+                </div>
+                <div class="status-card" style="border-left: 4px solid var(--color-warning)">
+                    <span class="status-count">{{ statusCount.maintenance }}</span>
+                    <span class="status-label">정비</span>
+                </div>
+                <div class="status-card" style="border-left: 4px solid var(--color-border)">
+                    <span class="status-count">{{ statusCount.total }}</span>
+                    <span class="status-label">전체</span>
+                </div>
+            </div>
 
-                <!-- 장비 카드 그리드 -->
-                <div class="equipment-grid">
-                    <div
-                        v-for="eq in getLineEquipment(line.lineId)"
-                        :key="eq.eqId"
-                        :class="['equipment-card', `status-${eq.status.toLowerCase()}`]"
-                        @click="goToDetail(eq.eqId)"
-                    >
-                        <div class="eq-status-dot" :style="{ background: getStatusColor(eq.status) }"></div>
-                        <div class="eq-info">
-                            <span class="eq-id">{{ eq.eqId }}</span>
-                            <span class="eq-type">{{ eq.eqType }}</span>
-                        </div>
-                        <span class="eq-status-text" :style="{ color: getStatusColor(eq.status) }">
-                            {{ getStatusLabel(eq.status) }}
+            <!-- Fab 탭 -->
+            <div class="fab-tabs">
+                <button
+                    v-for="fab in fabs"
+                    :key="fab.fabId"
+                    :class="['fab-tab', { active: selectedFabId === fab.fabId }]"
+                    @click="selectFab(fab.fabId)"
+                >
+                    {{ fab.fabName }}
+                </button>
+            </div>
+
+            <!-- Line 패널 -->
+            <div class="line-panels">
+                <div v-for="line in currentLines" :key="line.lineId" class="line-panel">
+                    <div class="line-header">
+                        <h3>{{ line.lineName }}</h3>
+                        <span class="line-type">{{ line.eqType }}</span>
+                        <span class="line-stats">
+                            가동 {{ getLineStats(line.lineId).running }} /
+                            정지 {{ getLineStats(line.lineId).stopped }} /
+                            정비 {{ getLineStats(line.lineId).maintenance }}
                         </span>
+                    </div>
+
+                    <!-- 장비 카드 그리드 -->
+                    <div class="equipment-grid">
+                        <div
+                            v-for="eq in getLineEquipment(line.lineId)"
+                            :key="eq.eqId"
+                            :class="['equipment-card', `status-${eq.status.toLowerCase()}`]"
+                            @click="goToDetail(eq.eqId)"
+                        >
+                            <div class="eq-status-dot" :style="{ background: getStatusColor(eq.status) }"></div>
+                            <div class="eq-info">
+                                <span class="eq-id">{{ eq.eqId }}</span>
+                                <span class="eq-type">{{ eq.eqType }}</span>
+                            </div>
+                            <span class="eq-status-text" :style="{ color: getStatusColor(eq.status) }">
+                                {{ getStatusLabel(eq.status) }}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </AppLayout>
 </template>
 
 <script setup>
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useEquipmentStore } from '../../stores/equipmentStore'
+import AppLayout from '../../layouts/AppLayout.vue'
 
 const router = useRouter()
 const store = useEquipmentStore()

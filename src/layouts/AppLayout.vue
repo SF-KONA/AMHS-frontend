@@ -6,22 +6,56 @@
             <nav class="sidebar__nav">
                 <RouterLink to="/dashboard" class="nav-item" active-class="is-active">대시보드</RouterLink>
                 <RouterLink to="/equipment" class="nav-item" active-class="is-active">장비 목록</RouterLink>
+
                 <RouterLink to="/alerts" class="nav-item nav-item--with-badge" active-class="is-active">
                     <span>알림 이력</span>
-                    <span v-if="unreadCount > 0" class="nav-badge">
-                        {{ unreadCount }}
+                    <span v-if="unreadAlertCount > 0" class="nav-badge">
+                        {{ unreadAlertCount }}
                     </span>
                 </RouterLink>
+
                 <RouterLink to="/maintenance" class="nav-item" active-class="is-active">정비 목록</RouterLink>
                 <RouterLink to="/stats" class="nav-item" active-class="is-active">통계</RouterLink>
-                <RouterLink to="/login" class="nav-item" active-class="is-active">로그인</RouterLink>
+
+                <RouterLink
+                    v-if="isAdmin"
+                    to="/admin/thresholds"
+                    class="nav-item"
+                    active-class="is-active"
+                >
+                    임계값 설정
+                </RouterLink>
+
+                <RouterLink
+                    v-if="isAdmin"
+                    to="/analysis/traceability"
+                    class="nav-item"
+                    active-class="is-active"
+                >
+                    장비 추적 분석
+                </RouterLink>
+
+                <RouterLink v-if="!isLoggedIn" to="/login" class="nav-item" active-class="is-active">
+                    로그인
+                </RouterLink>
             </nav>
         </aside>
 
         <div class="layout-main">
             <header class="layout-header">
                 <h1 class="layout-title">{{ pageTitle }}</h1>
-                <div class="layout-header__right">FE2 Layout</div>
+                <div class="layout-header__right">
+                    <template v-if="isLoggedIn">
+                        <span class="user-name">{{ userName }}</span>
+                        <button class="logout-button" @click="handleLogout">
+                            로그아웃
+                        </button>
+                    </template>
+
+                    <template v-else>
+                        <RouterLink to="/login" class="login-link">로그인</RouterLink>
+                    </template>
+                </div>
             </header>
 
             <main class="layout-content">
@@ -33,13 +67,20 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useRoute, RouterLink } from 'vue-router'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useAlertStore } from '../stores/alertStore'
+import { useAuthStore } from '../stores/authStore'
 
 const route = useRoute()
+const router = useRouter()
 const alertStore = useAlertStore()
+const authStore = useAuthStore()
 
 const unreadCount = computed(() => alertStore.unreadCount)
+const unreadAlertCount = computed(() => alertStore.unreadCount)
+const isAdmin = computed(() => authStore.role === 'ADMIN')
+const isLoggedIn = computed(() => authStore.isLoggedIn)
+const userName = computed(() => authStore.user?.name || '게스트')
 
 const titleMap = {
     dashboard: '대시보드',
@@ -49,14 +90,48 @@ const titleMap = {
     stats: '통계',
     login: '로그인',
     'equipment-detail': '장비 상세',
+    'maintenance-detail': '정비 상세',
+    thresholds: '임계값 설정',
+    traceability: '장비 추적 분석',
 }
 
 const pageTitle = computed(() => {
     return titleMap[route.name] || 'AMHS Frontend'
 })
+
+function handleLogout() {
+    authStore.logout()
+    router.push('/login')
+}
 </script>
 
 <style scoped>
+
+.user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.logout-button {
+    margin-left: 10px;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.login-link {
+    color: var(--color-interest);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+}
 
 .nav-item--with-badge {
     display: flex;
