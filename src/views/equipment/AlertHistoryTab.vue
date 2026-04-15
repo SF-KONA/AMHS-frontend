@@ -1,5 +1,9 @@
 <template>
     <div class="tab-section">
+        <p class="history-guide">
+            알림 히스토리는 과거 이벤트 기록입니다.
+        </p>
+
         <DataTable
             :columns="columns"
             :data="filteredAlerts"
@@ -63,6 +67,17 @@ function mapLevelToStatus(level) {
     display: flex;
     flex-direction: column;
     gap: 16px;
+}
+
+.history-guide {
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--color-bg);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-text-muted);
 }
 
 .ack-text {
