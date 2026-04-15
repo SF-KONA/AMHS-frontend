@@ -53,6 +53,18 @@ const routes = [
         name: 'login',
         component: () => import('../views/auth/LoginView.vue'),
     },
+    {
+        path: '/admin/thresholds',
+        name: 'thresholds',
+        component: () => import('../views/admin/ThresholdView.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true },
+    },
+    {
+        path: '/analysis/traceability',
+        name: 'traceability',
+        component: () => import('../views/analysis/TraceabilityView.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true },
+    },
 ]
 
 const router = createRouter({
@@ -70,6 +82,10 @@ router.beforeEach((to) => {
     if (to.path === '/login' && authStore.isLoggedIn) {
         return '/dashboard'
     }
+
+    if (to.meta.requiresAdmin && authStore.role !== 'ADMIN') {
+        return '/dashboard'
+    }   
 })
 
 export default router
