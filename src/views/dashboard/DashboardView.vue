@@ -1,6 +1,19 @@
 <template>
     <AppLayout>
         <div class="dashboard">
+            <!-- Fab 상태 분포 도넛차트 (FE1 추가) -->
+            <div class="fab-status-section">
+                <div class="fab-status-chart">
+                    <StatusDonutChart
+                        :running="fabStatusCount.running"
+                        :stopped="fabStatusCount.stopped"
+                        :maintenance="fabStatusCount.maintenance"
+                        :center-title="currentFab ? currentFab.fabName : ''"
+                        size="large"
+                    />
+                </div>
+            </div>
+
             <!-- 상태 카운트 카드 -->
             <div class="status-summary">
                 <div class="status-card" style="border-left: 4px solid var(--color-normal)">
@@ -46,6 +59,33 @@
                         </span>
                     </div>
 
+                    <!-- Line 가동률 게이지 + 상태 미니 도넛 (FE1 추가) -->
+                    <div class="line-stats-row">
+                        <UtilizationGauge
+                            :running="getLineStats(line.lineId).running"
+                            :total-slots="line.totalSlots || 10"
+                            :min-running="line.minRunning || 7"
+                        />
+                        <div class="line-mini-donut">
+                            <StatusDonutChart
+                                :running="getLineStats(line.lineId).running"
+                                :stopped="getLineStats(line.lineId).stopped"
+                                :maintenance="getLineStats(line.lineId).maintenance"
+                                size="mini"
+                            />
+                        </div>
+                        <div class="line-meta">
+                            <div class="line-meta-row">
+                                <span class="line-meta-label">정원</span>
+                                <span class="line-meta-value">{{ line.totalSlots || 10 }}대</span>
+                            </div>
+                            <div class="line-meta-row">
+                                <span class="line-meta-label">최소 가동</span>
+                                <span class="line-meta-value">{{ line.minRunning || 7 }}대</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- 장비 카드 그리드 -->
                     <div class="equipment-grid">
                         <div
@@ -66,6 +106,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 알림 피드 (FE1 추가) -->
+            <AlertFeed class="alert-feed-section" />
         </div>
     </AppLayout>
 </template>
@@ -75,6 +118,9 @@ import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useEquipmentStore } from '../../stores/equipmentStore'
 import AppLayout from '../../layouts/AppLayout.vue'
+import StatusDonutChart from '../../components/dashboard/StatusDonutChart.vue'
+import UtilizationGauge from '../../components/dashboard/UtilizationGauge.vue'
+import AlertFeed from '../../components/dashboard/AlertFeed.vue'
 
 const router = useRouter()
 const store = useEquipmentStore()
@@ -87,6 +133,23 @@ const statusCount = computed(() => store.statusCount)
 const currentLines = computed(() => {
     const fab = fabs.value.find((f) => f.fabId === selectedFabId.value)
     return fab ? fab.lines : []
+})
+
+// 선택된 Fab 객체 (도넛 중앙 라벨용)
+const currentFab = computed(() => {
+    return fabs.value.find((f) => f.fabId === selectedFabId.value) || null
+})
+
+// 선택된 Fab 기준 상태 분포 (도넛에 직접 전달, store.statusCount 우회)
+const fabStatusCount = computed(() => {
+    const fabId = selectedFabId.value
+    if (!fabId) return { running: 0, stopped: 0, maintenance: 0 }
+    const list = store.equipmentList.filter((eq) => eq.fabId === fabId)
+    return {
+        running: list.filter((e) => e.status === 'RUNNING').length,
+        stopped: list.filter((e) => e.status === 'STOPPED').length,
+        maintenance: list.filter((e) => e.status === 'MAINTENANCE').length,
+    }
 })
 
 // Fab 선택
@@ -305,6 +368,65 @@ onMounted(() => {
     font-weight: 600;
 }
 
+/* === FE1 추가 === */
+
+/* Fab 상태 분포 도넛차트 섹션 */
+.fab-status-section {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+}
+
+.fab-status-chart {
+    width: 100%;
+    height: 220px;
+}
+
+/* Line 패널 — 가동률 게이지 + 미니 도넛 줄 */
+.line-stats-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 12px 4px 16px;
+    margin-bottom: 12px;
+    border-bottom: 1px dashed var(--color-border);
+}
+
+.line-mini-donut {
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+}
+
+.line-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+}
+
+.line-meta-row {
+    display: flex;
+    gap: 8px;
+}
+
+.line-meta-label {
+    color: var(--color-text-muted);
+    min-width: 56px;
+}
+
+.line-meta-value {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+/* 알림 피드 섹션 */
+.alert-feed-section {
+    margin-top: 24px;
+}
+
 /* 반응형 */
 @media (max-width: 900px) {
     .equipment-grid {
@@ -312,6 +434,13 @@ onMounted(() => {
     }
     .status-summary {
         grid-template-columns: repeat(2, 1fr);
+    }
+    .fab-status-chart {
+        height: 200px;
+    }
+    .line-stats-row {
+        flex-wrap: wrap;
+        gap: 16px;
     }
 }
 
