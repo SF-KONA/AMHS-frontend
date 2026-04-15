@@ -31,6 +31,11 @@ const routes = [
         component: () => import('../views/maintenance/MaintenanceListView.vue'),
     },
     {
+    path: '/maintenance/:id',
+    name: 'maintenance-detail',
+    component: () => import('../views/maintenance/MaintenanceDetailView.vue'),
+    },
+    {
         path: '/stats',
         name: 'stats',
         component: () => import('../views/stats/StatisticsView.vue'),

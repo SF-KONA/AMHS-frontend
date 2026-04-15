@@ -33,7 +33,9 @@
                 @row-click="handleRowClick"
             >
                 <template #status="{ row }">
-                    <StatusBadge :status="mapOrderStatus(row.status)" />
+                    <span :class="['order-status-badge', getOrderStatusClass(row.status)]">
+                        {{ getOrderStatusLabel(row.status) }}
+                    </span>
                 </template>
             </DataTable>
         </div>
@@ -43,12 +45,15 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useMaintenanceStore } from '../../stores/maintenanceStore'
 import AppLayout from '../../layouts/AppLayout.vue'
 import FilterBar from '../../components/common/FilterBar.vue'
 import DataTable from '../../components/common/DataTable.vue'
-import StatusBadge from '../../components/common/StatusBadge.vue'
 
 const router = useRouter()
+
+const maintenanceStore = useMaintenanceStore()
+
 
 const filterValues = ref({
     lineId: '',
@@ -86,39 +91,9 @@ const columns = [
     { key: 'status', label: '상태', slot: true },
 ]
 
-const rows = [
-    {
-        orderId: 'MO-001',
-        eqId: 'OHT-03',
-        lineId: 'LINE-1',
-        priority: 'HIGH',
-        status: 'OPEN',
-    },
-    {
-        orderId: 'MO-002',
-        eqId: 'OHT-11',
-        lineId: 'LINE-2',
-        priority: 'MEDIUM',
-        status: 'ASSIGNED',
-    },
-    {
-        orderId: 'MO-003',
-        eqId: 'AGV-07',
-        lineId: 'LINE-3',
-        priority: 'HIGH',
-        status: 'IN_PROGRESS',
-    },
-    {
-        orderId: 'MO-004',
-        eqId: 'AGV-12',
-        lineId: 'LINE-4',
-        priority: 'LOW',
-        status: 'COMPLETED',
-    },
-]
 
 const filteredRows = computed(() => {
-    return rows.filter((row) => {
+    return maintenanceStore.orderList.filter((row) => {
         const matchLine =
             !filterValues.value.lineId || row.lineId === filterValues.value.lineId
         const matchStatus =
@@ -132,19 +107,68 @@ function handleRowClick(row) {
     router.push(`/maintenance/${row.orderId}`)
 }
 
-function mapOrderStatus(status) {
+function getOrderStatusLabel(status) {
     const map = {
-        OPEN: 'WARNING',
-        ASSIGNED: 'IDLE',
-        IN_PROGRESS: 'ERROR',
-        COMPLETED: 'RUNNING',
+        OPEN: '대기',
+        ASSIGNED: '배정',
+        IN_PROGRESS: '진행중',
+        COMPLETED: '완료',
     }
 
-    return map[status] || 'IDLE'
+    return map[status] || status
+}
+
+function getOrderStatusClass(status) {
+    const map = {
+        OPEN: 'is-open',
+        ASSIGNED: 'is-assigned',
+        IN_PROGRESS: 'is-in-progress',
+        COMPLETED: 'is-completed',
+    }
+
+    return map[status] || ''
 }
 </script>
 
 <style scoped>
+
+.order-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 72px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    border: 1px solid transparent;
+}
+
+.is-open {
+    background: color-mix(in srgb, var(--color-warning) 12%, white);
+    color: var(--color-warning);
+    border-color: color-mix(in srgb, var(--color-warning) 30%, white);
+}
+
+.is-assigned {
+    background: color-mix(in srgb, var(--color-interest) 12%, white);
+    color: var(--color-interest);
+    border-color: color-mix(in srgb, var(--color-interest) 30%, white);
+}
+
+.is-in-progress {
+    background: color-mix(in srgb, var(--color-danger) 12%, white);
+    color: var(--color-danger);
+    border-color: color-mix(in srgb, var(--color-danger) 30%, white);
+}
+
+.is-completed {
+    background: color-mix(in srgb, var(--color-normal) 12%, white);
+    color: var(--color-normal);
+    border-color: color-mix(in srgb, var(--color-normal) 30%, white);
+}
+
 .page-section {
     display: flex;
     flex-direction: column;
