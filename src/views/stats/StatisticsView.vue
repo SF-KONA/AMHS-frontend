@@ -3,40 +3,68 @@
         <div class="page-section">
             <div class="page-header">
                 <h2 class="page-title">통계</h2>
-                <ExportButton :loading="isExporting" @click="handleExport" />
+
+                <div class="page-actions">
+                    <button class="state-button" @click="setState('normal')">정상</button>
+                    <button class="state-button" @click="setState('loading')">로딩</button>
+                    <button class="state-button" @click="setState('empty')">빈 데이터</button>
+                    <button class="state-button" @click="setState('error')">에러</button>
+
+                    <ExportButton :loading="isExporting" @click="handleExport" />
+                </div>
             </div>
 
             <RiskRankingChart
-                :rows="riskRows"
-                :loading="false"
-                :error="false"
+                :rows="displayRows"
+                :loading="isLoading"
+                :error="isError"
             />
         </div>
     </AppLayout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import AppLayout from '../../layouts/AppLayout.vue'
 import RiskRankingChart from '../../components/stats/RiskRankingChart.vue'
 import ExportButton from '../../components/stats/ExportButton.vue'
 
 const isExporting = ref(false)
+const currentState = ref('normal')
 
-const riskRows = ref([
+const baseRows = [
     { label: 'OHT-08', riskScore: 92 },
     { label: 'AGV-07', riskScore: 81 },
     { label: 'OHT-11', riskScore: 74 },
     { label: 'AGV-12', riskScore: 63 },
     { label: 'OHT-03', riskScore: 58 },
-])
+]
+
+const isLoading = computed(() => currentState.value === 'loading')
+const isError = computed(() => currentState.value === 'error')
+
+const displayRows = computed(() => {
+    if (currentState.value === 'empty') {
+        return []
+    }
+
+    if (currentState.value === 'error' || currentState.value === 'loading') {
+        return []
+    }
+
+    return baseRows
+})
+
+function setState(state) {
+    currentState.value = state
+}
 
 function handleExport() {
     isExporting.value = true
 
     const rows = [
         ['장비', '위험도'],
-        ...riskRows.value.map((row) => [row.label, row.riskScore]),
+        ...baseRows.map((row) => [row.label, row.riskScore]),
     ]
 
     const csvContent = rows.map((row) => row.join(',')).join('\n')
@@ -69,6 +97,7 @@ function handleExport() {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
 .page-title {
@@ -76,5 +105,24 @@ function handleExport() {
     font-size: 24px;
     font-weight: 700;
     color: var(--color-text);
+}
+
+.page-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.state-button {
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
 }
 </style>
