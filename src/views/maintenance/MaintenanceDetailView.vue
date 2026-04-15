@@ -20,34 +20,84 @@
                     <span class="detail-label">우선순위</span>
                     <span class="detail-value">HIGH</span>
                 </div>
+                <div class="detail-row">
+                    <span class="detail-label">현재 상태</span>
+                    <span :class="['order-status-badge', getOrderStatusClass(currentStatus)]">
+                        {{ getOrderStatusLabel(currentStatus) }}
+                    </span>
+                </div>
             </div>
 
             <div class="status-section">
                 <h3 class="section-title">상태 전이</h3>
+
                 <div class="status-buttons">
-                    <button class="status-button">OPEN</button>
-                    <button class="status-button">ASSIGNED</button>
-                    <button class="status-button">IN_PROGRESS</button>
-                    <button class="status-button">COMPLETED</button>
+                    <button
+                        v-for="status in statusFlow"
+                        :key="status"
+                        :class="['status-button', { active: currentStatus === status }]"
+                        @click="changeStatus(status)"
+                    >
+                        {{ getOrderStatusLabel(status) }}
+                    </button>
                 </div>
             </div>
 
             <div class="detail-card">
                 <h3 class="section-title">조치 내용</h3>
+
                 <textarea
+                    v-model="actionMemo"
                     class="action-textarea"
                     placeholder="조치 내용을 입력하세요."
                 />
+
+                <div class="memo-footer">
+                    <span class="memo-guide">
+                        {{ currentStatus === 'COMPLETED' ? '완료 처리 전 조치 내용을 꼭 확인하세요.' : '작업 진행 중 메모를 기록할 수 있습니다.' }}
+                    </span>
+                </div>
             </div>
         </div>
     </AppLayout>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import AppLayout from '../../layouts/AppLayout.vue'
 
 const route = useRoute()
+
+const statusFlow = ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED']
+const currentStatus = ref('OPEN')
+const actionMemo = ref('')
+
+function changeStatus(status) {
+    currentStatus.value = status
+}
+
+function getOrderStatusLabel(status) {
+    const map = {
+        OPEN: '대기',
+        ASSIGNED: '배정',
+        IN_PROGRESS: '진행중',
+        COMPLETED: '완료',
+    }
+
+    return map[status] || status
+}
+
+function getOrderStatusClass(status) {
+    const map = {
+        OPEN: 'is-open',
+        ASSIGNED: 'is-assigned',
+        IN_PROGRESS: 'is-in-progress',
+        COMPLETED: 'is-completed',
+    }
+
+    return map[status] || ''
+}
 </script>
 
 <style scoped>
@@ -81,6 +131,8 @@ const route = useRoute()
 .detail-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    gap: 12px;
     padding: 10px 0;
     border-bottom: 1px solid var(--color-border);
 }
@@ -121,6 +173,18 @@ const route = useRoute()
     cursor: pointer;
     font-size: 13px;
     font-weight: 600;
+    color: var(--color-text);
+    transition: all 0.2s ease;
+}
+
+.status-button:hover {
+    border-color: var(--color-text-muted);
+}
+
+.status-button.active {
+    background: var(--color-text);
+    color: #ffffff;
+    border-color: var(--color-text);
 }
 
 .action-textarea {
@@ -132,5 +196,51 @@ const route = useRoute()
     font-size: 14px;
     resize: vertical;
     box-sizing: border-box;
+}
+
+.memo-footer {
+    margin-top: 10px;
+}
+
+.memo-guide {
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+
+.order-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 72px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    border: 1px solid transparent;
+}
+
+.is-open {
+    background: color-mix(in srgb, var(--color-warning) 12%, white);
+    color: var(--color-warning);
+    border-color: color-mix(in srgb, var(--color-warning) 30%, white);
+}
+
+.is-assigned {
+    background: color-mix(in srgb, var(--color-interest) 12%, white);
+    color: var(--color-interest);
+    border-color: color-mix(in srgb, var(--color-interest) 30%, white);
+}
+
+.is-in-progress {
+    background: color-mix(in srgb, var(--color-danger) 12%, white);
+    color: var(--color-danger);
+    border-color: color-mix(in srgb, var(--color-danger) 30%, white);
+}
+
+.is-completed {
+    background: color-mix(in srgb, var(--color-normal) 12%, white);
+    color: var(--color-normal);
+    border-color: color-mix(in srgb, var(--color-normal) 30%, white);
 }
 </style>
