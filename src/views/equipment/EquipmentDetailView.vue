@@ -3,26 +3,52 @@
         <div class="page-section">
             <h2 class="page-title">장비 상세</h2>
 
-            <div class="detail-card">
+            <div v-if="device" class="detail-card">
                 <div class="detail-row">
                     <span class="detail-label">장비 ID</span>
-                    <span class="detail-value">{{ route.params.deviceId }}</span>
+                    <span class="detail-value">{{ device.deviceId }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">장비명</span>
+                    <span class="detail-value">{{ device.deviceName || '-' }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">장비 유형</span>
-                    <span class="detail-value">OHT</span>
+                    <span class="detail-value">{{ device.deviceType }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">소속 Fab</span>
+                    <span class="detail-value">{{ fabName }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">소속 Line</span>
-                    <span class="detail-value">LINE-1</span>
+                    <span class="detail-value">{{ device.lineId }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">제조사</span>
+                    <span class="detail-value">{{ device.manufacturer || '-' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">설치자</span>
+                    <span class="detail-value">{{ device.installer || '-' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">설치일</span>
+                    <span class="detail-value">{{ device.installDate || '-' }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">현재 상태</span>
-                    <span class="detail-value">RUNNING</span>
+                    <span class="detail-value">
+                        <StatusBadge :status="device.status" />
+                    </span>
                 </div>
             </div>
 
-            <div class="tab-card">
+            <div v-else class="detail-card detail-empty">
+                장비를 찾을 수 없습니다. ({{ route.params.deviceId }})
+            </div>
+
+            <div v-if="device" class="tab-card">
                 <div class="tab-header">
                     <button
                         :class="['tab-button', { active: activeTab === 'sensor' }]"
@@ -59,14 +85,35 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import AppLayout from '../../layouts/AppLayout.vue'
+import StatusBadge from '../../components/common/StatusBadge.vue'
 import AlertHistoryTab from './AlertHistoryTab.vue'
 import SensorChartTab from './SensorChartTab.vue'
+import { useEquipmentStore } from '../../stores/equipmentStore'
 
 const route = useRoute()
+const store = useEquipmentStore()
 const activeTab = ref('sensor')
+
+// 현재 장비 객체
+const device = computed(() => {
+    return store.equipmentList.find((e) => e.deviceId === route.params.deviceId) || null
+})
+
+// 소속 Fab 이름
+const fabName = computed(() => {
+    if (!device.value) return '-'
+    const fab = store.fabs.find((f) => f.fabId === device.value.fabId)
+    return fab ? fab.fabName : device.value.fabId || '-'
+})
+
+// store 데이터 보장 (대시보드 거치지 않고 직접 URL 진입 시)
+onMounted(() => {
+    if (!store.fabs.length) store.fetchFabs()
+    if (!store.equipmentList.length) store.fetchEquipment()
+})
 </script>
 
 <style scoped>
@@ -153,6 +200,13 @@ const activeTab = ref('sensor')
     border: 1px dashed var(--color-border);
     border-radius: 12px;
     background: var(--color-bg);
+    color: var(--color-text-muted);
+    font-size: 14px;
+}
+
+.detail-empty {
+    text-align: center;
+    padding: 32px 20px;
     color: var(--color-text-muted);
     font-size: 14px;
 }
