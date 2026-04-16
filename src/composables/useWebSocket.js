@@ -11,18 +11,23 @@ import SockJS from 'sockjs-client'
  *   같은 토픽 재구독 시 콜백만 갱신
  * - 연결 전에 subscribe 호출해도 onConnect 시점에 자동으로 구독됨
  *
+ * BE 토픽 경로 (실제 BE 엔드포인트 기준):
+ *   /topic/sensors/{deviceId}  — 장비별 센서 실시간 Push (복수형 sensors)
+ *   /topic/alert               — 알림 Push
+ *   /topic/line-capacity       — 라인 가용 경고 Push
+ *
  * 사용 예:
  *   const ws = useWebSocket()
  *   onMounted(() => {
  *     ws.connect()
- *     ws.subscribe(`/topic/sensor/${eqId}`, (msg) => { ... })
+ *     ws.subscribe(`/topic/sensors/${deviceId}`, (msg) => { ... })
  *   })
  *   onUnmounted(() => {
- *     ws.unsubscribe(`/topic/sensor/${eqId}`)
+ *     ws.unsubscribe(`/topic/sensors/${deviceId}`)
  *   })
  */
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws'
+const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws-sensor'
 const RECONNECT_DELAY_MS = 3000
 const MAX_RECONNECT_ATTEMPTS = 3
 
