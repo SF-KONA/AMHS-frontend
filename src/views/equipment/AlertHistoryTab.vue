@@ -29,7 +29,7 @@ import StatusBadge from '../../components/common/StatusBadge.vue'
 import { useAlertStore } from '../../stores/alertStore'
 
 const props = defineProps({
-    eqId: {
+    deviceId: {
         type: String,
         required: true,
     },
@@ -39,7 +39,7 @@ const alertStore = useAlertStore()
 
 const columns = [
     { key: 'createdAt', label: '시각' },
-    { key: 'eqId', label: '장비' },
+    { key: 'deviceId', label: '장비' },
     { key: 'level', label: '등급', slot: true },
     { key: 'sensorName', label: '센서' },
     { key: 'sensorValue', label: '값' },
@@ -47,7 +47,7 @@ const columns = [
 ]
 
 const filteredAlerts = computed(() => {
-    return alertStore.alertList.filter((alert) => alert.eqId === props.eqId)
+    return alertStore.alertList.filter((alert) => alert.deviceId === props.deviceId)
 })
 
 function mapLevelToStatus(level) {

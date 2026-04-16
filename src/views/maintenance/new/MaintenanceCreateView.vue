@@ -6,7 +6,7 @@
             <div class="form-card">
                 <div class="form-group">
                     <label>장비 ID</label>
-                    <input v-model="form.eqId" type="text" placeholder="예: OHT-03" />
+                    <input v-model="form.deviceId" type="text" placeholder="예: OHT-03" />
                 </div>
 
                 <div class="form-group">
@@ -74,7 +74,7 @@ const maintenanceStore = useMaintenanceStore()
 const errorMessage = ref('')
 
 const form = reactive({
-    eqId: '',
+    deviceId: '',
     lineId: '',
     priority: '',
     alertId: route.query.alertId || '',
@@ -84,7 +84,7 @@ const form = reactive({
 function handleCreate() {
     errorMessage.value = ''
 
-    if (!form.eqId || !form.lineId || !form.priority) {
+    if (!form.deviceId || !form.lineId || !form.priority) {
         errorMessage.value = '장비 ID, Line, 우선순위는 필수입니다.'
         return
     }
@@ -94,7 +94,7 @@ function handleCreate() {
 
     maintenanceStore.addOrder({
         orderId,
-        eqId: form.eqId,
+        deviceId: form.deviceId,
         lineId: form.lineId,
         priority: form.priority,
         status: 'OPEN',

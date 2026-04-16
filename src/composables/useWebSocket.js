@@ -15,10 +15,10 @@ import SockJS from 'sockjs-client'
  *   const ws = useWebSocket()
  *   onMounted(() => {
  *     ws.connect()
- *     ws.subscribe(`/topic/sensor/${eqId}`, (msg) => { ... })
+ *     ws.subscribe(`/topic/sensor/${deviceId}`, (msg) => { ... })
  *   })
  *   onUnmounted(() => {
- *     ws.unsubscribe(`/topic/sensor/${eqId}`)
+ *     ws.unsubscribe(`/topic/sensor/${deviceId}`)
  *   })
  */
 

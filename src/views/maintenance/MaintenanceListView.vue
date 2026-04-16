@@ -91,7 +91,7 @@ const filters = [
 
 const columns = [
     { key: 'orderId', label: '오더번호' },
-    { key: 'eqId', label: '장비' },
+    { key: 'deviceId', label: '장비' },
     { key: 'lineId', label: 'Line' },
     { key: 'priority', label: '우선순위' },
     { key: 'status', label: '상태', slot: true },

@@ -24,7 +24,7 @@
             <tbody>
                 <tr
                     v-for="(row, rowIndex) in paginatedData"
-                    :key="row.id || row.eqId || rowIndex"
+                    :key="row.id || row.deviceId || rowIndex"
                     class="data-table__row"
                     @click="handleRowClick(row)"
                 >

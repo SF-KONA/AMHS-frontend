@@ -48,7 +48,7 @@ use([
 ])
 
 const props = defineProps({
-    eqId: {
+    deviceId: {
         type: String,
         required: true,
     },
@@ -210,9 +210,9 @@ function hexToRgba(hex, alpha) {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
-// eqId가 바뀌면 (다른 장비 상세로 이동) mock 윈도우 리셋
+// deviceId가 바뀌면 (다른 장비 상세로 이동) mock 윈도우 리셋
 watch(
-    () => props.eqId,
+    () => props.deviceId,
     () => {
         readings.value = generateInitialReadings(WINDOW_SIZE, TICK_MS)
     },

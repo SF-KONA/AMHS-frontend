@@ -5,7 +5,7 @@ export const useMaintenanceStore = defineStore('maintenance', {
         orderList: [
             {
                 orderId: 'MO-001',
-                eqId: 'OHT-03',
+                deviceId: 'OHT-03',
                 lineId: 'LINE-1',
                 priority: 'HIGH',
                 status: 'OPEN',
@@ -13,7 +13,7 @@ export const useMaintenanceStore = defineStore('maintenance', {
             },
             {
                 orderId: 'MO-002',
-                eqId: 'OHT-11',
+                deviceId: 'OHT-11',
                 lineId: 'LINE-2',
                 priority: 'MEDIUM',
                 status: 'ASSIGNED',
@@ -21,7 +21,7 @@ export const useMaintenanceStore = defineStore('maintenance', {
             },
             {
                 orderId: 'MO-003',
-                eqId: 'AGV-07',
+                deviceId: 'AGV-07',
                 lineId: 'LINE-3',
                 priority: 'HIGH',
                 status: 'IN_PROGRESS',
@@ -29,7 +29,7 @@ export const useMaintenanceStore = defineStore('maintenance', {
             },
             {
                 orderId: 'MO-004',
-                eqId: 'AGV-12',
+                deviceId: 'AGV-12',
                 lineId: 'LINE-4',
                 priority: 'LOW',
                 status: 'COMPLETED',

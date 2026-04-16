@@ -24,7 +24,7 @@
                             </button>
                         </div>
                         <div class="toast-body">
-                            <span v-if="toast.eqId" class="toast-eq">{{ toast.eqId }}</span>
+                            <span v-if="toast.deviceId" class="toast-eq">{{ toast.deviceId }}</span>
                             <span v-if="toast.sensorName" class="toast-sensor">
                                 {{ toast.sensorName }}
                                 <template v-if="toast.sensorValue !== undefined && toast.sensorValue !== null">

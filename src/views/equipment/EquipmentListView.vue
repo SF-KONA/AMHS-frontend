@@ -74,8 +74,8 @@ const filters = computed(() => {
 })
 
 const columns = [
-    { key: 'eqId', label: '장비코드' },
-    { key: 'eqType', label: '장비유형' },
+    { key: 'deviceId', label: '장비코드' },
+    { key: 'deviceType', label: '장비유형' },
     { key: 'lineId', label: '라인' },
     { key: 'status', label: '상태', slot: true },
 ]
@@ -94,7 +94,7 @@ const equipmentRows = computed(() => {
 })
 
 function handleRowClick(row) {
-    router.push(`/dashboard/${row.eqId}`)
+    router.push(`/dashboard/${row.deviceId}`)
 }
 
 onMounted(() => {
