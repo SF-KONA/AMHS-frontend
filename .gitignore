@@ -25,3 +25,22 @@ dist-ssr
 .env
 
 CLAUDE.md
+
+# 환경변수 (보안)
+.env.local
+.env.development.local
+.env.test.local
+.env.production
+.env.production.local
+.env.*.local
+
+# 인증 파일
+*.key
+*.pem
+
+# macOS
+.DS_Store
+
+# 에디터
+.vscode/
+.idea/
