@@ -37,7 +37,7 @@
             <div v-for="line in currentLines" :key="line.lineId" class="line-panel">
                 <div class="line-header">
                     <h3>{{ line.lineName }}</h3>
-                    <span class="line-type">{{ line.eqType }}</span>
+                    <span class="line-type">{{ line.deviceType }}</span>
                     <span class="line-stats">
                         가동 {{ getLineStats(line.lineId).running }} /
                         정지 {{ getLineStats(line.lineId).stopped }} /
@@ -49,16 +49,16 @@
                 <div class="equipment-grid">
                     <div
                         v-for="eq in getLineEquipment(line.lineId)"
-                        :key="eq.eqId"
+                        :key="eq.deviceId"
                         :class="['equipment-card', `status-${eq.status.toLowerCase()}`]"
-                        @click="goToDetail(eq.eqId)"
+                        @click="goToDetail(eq.deviceId)"
                     >
-                        <div class="eq-status-dot" :style="{ background: getStatusColor(eq.status) }"></div>
-                        <div class="eq-info">
-                            <span class="eq-id">{{ eq.eqId }}</span>
-                            <span class="eq-type">{{ eq.eqType }}</span>
+                        <div class="device-status-dot" :style="{ background: getStatusColor(eq.status) }"></div>
+                        <div class="device-info">
+                            <span class="device-id">{{ eq.deviceId }}</span>
+                            <span class="device-type">{{ eq.deviceType }}</span>
                         </div>
-                        <span class="eq-status-text" :style="{ color: getStatusColor(eq.status) }">
+                        <span class="device-status-text" :style="{ color: getStatusColor(eq.status) }">
                             {{ getStatusLabel(eq.status) }}
                         </span>
                     </div>
@@ -128,8 +128,8 @@ function getStatusLabel(status) {
 }
 
 // 장비 상세 이동
-function goToDetail(eqId) {
-    router.push(`/dashboard/${eqId}`)
+function goToDetail(deviceId) {
+    router.push(`/dashboard/${deviceId}`)
 }
 
 onMounted(() => {
@@ -275,29 +275,29 @@ onMounted(() => {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.eq-status-dot {
+.device-status-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
 }
 
-.eq-info {
+.device-info {
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
-.eq-id {
+.device-id {
     font-size: 14px;
     font-weight: 600;
 }
 
-.eq-type {
+.device-type {
     font-size: 11px;
     color: var(--color-text-muted);
 }
 
-.eq-status-text {
+.device-status-text {
     font-size: 12px;
     font-weight: 600;
 }

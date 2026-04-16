@@ -10,7 +10,7 @@
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">장비</span>
-                    <span class="detail-value">{{ currentOrder?.eqId }}</span>
+                    <span class="detail-value">{{ currentOrder?.deviceId }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">라인</span>

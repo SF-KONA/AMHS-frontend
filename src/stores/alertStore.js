@@ -8,7 +8,7 @@ export const useAlertStore = defineStore('alert', {
         alertList: [
             {
                 alertId: 1,
-                eqId: 'OHT-03',
+                deviceId: 'OHT-03',
                 level: 'WARNING',
                 sensorName: 'PM10',
                 sensorValue: 58,
@@ -17,7 +17,7 @@ export const useAlertStore = defineStore('alert', {
             },
             {
                 alertId: 2,
-                eqId: 'AGV-07',
+                deviceId: 'AGV-07',
                 level: 'ERROR',
                 sensorName: 'NTC',
                 sensorValue: 84,
@@ -26,7 +26,7 @@ export const useAlertStore = defineStore('alert', {
             },
             {
                 alertId: 3,
-                eqId: 'OHT-11',
+                deviceId: 'OHT-11',
                 level: 'WARNING',
                 sensorName: 'IR_TEMP_MAX',
                 sensorValue: 72,
@@ -61,7 +61,7 @@ export const useAlertStore = defineStore('alert', {
             this.toastQueue.push({
                 toastId,
                 level: (toast && toast.level) || 'WARNING',
-                eqId: toast && toast.eqId,
+                deviceId: toast && toast.deviceId,
                 sensorName: toast && toast.sensorName,
                 sensorValue: toast && toast.sensorValue,
                 message: toast && toast.message,

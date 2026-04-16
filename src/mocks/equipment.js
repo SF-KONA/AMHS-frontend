@@ -3,16 +3,16 @@ export const mockFabs = [
         fabId: 'FAB-A',
         fabName: 'Fab A (반도체)',
         lines: [
-            { lineId: 'LINE-1', lineName: 'Line 1', eqType: 'OHT', totalSlots: 10, minRunning: 7 },
-            { lineId: 'LINE-2', lineName: 'Line 2', eqType: 'OHT', totalSlots: 10, minRunning: 7 },
+            { lineId: 'LINE-1', lineName: 'Line 1', deviceType: 'OHT', totalSlots: 10, minRunning: 7 },
+            { lineId: 'LINE-2', lineName: 'Line 2', deviceType: 'OHT', totalSlots: 10, minRunning: 7 },
         ],
     },
     {
         fabId: 'FAB-B',
         fabName: 'Fab B (디스플레이)',
         lines: [
-            { lineId: 'LINE-3', lineName: 'Line 3', eqType: 'AGV', totalSlots: 10, minRunning: 7 },
-            { lineId: 'LINE-4', lineName: 'Line 4', eqType: 'AGV', totalSlots: 10, minRunning: 7 },
+            { lineId: 'LINE-3', lineName: 'Line 3', deviceType: 'AGV', totalSlots: 10, minRunning: 7 },
+            { lineId: 'LINE-4', lineName: 'Line 4', deviceType: 'AGV', totalSlots: 10, minRunning: 7 },
         ],
     },
 ]
@@ -21,9 +21,9 @@ const statuses = ['RUNNING', 'RUNNING', 'RUNNING', 'RUNNING', 'RUNNING', 'RUNNIN
 
 function generateEquipment(prefix, type, fabId, lineId, count, startIdx) {
     return Array.from({ length: count }, (_, i) => ({
-        eqId: `${prefix}-${String(startIdx + i).padStart(2, '0')}`,
-        eqName: `${prefix}-${String(startIdx + i).padStart(2, '0')}`,
-        eqType: type,
+        deviceId: `${prefix}-${String(startIdx + i).padStart(2, '0')}`,
+        deviceName: `${prefix}-${String(startIdx + i).padStart(2, '0')}`,
+        deviceType: type,
         fabId,
         lineId,
         manufacturer: ['현대', '삼성', 'SEW'][i % 3],

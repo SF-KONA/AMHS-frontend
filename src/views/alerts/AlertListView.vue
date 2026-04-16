@@ -53,13 +53,13 @@ const alertStore = useAlertStore()
 
 const filterValues = ref({
     level: '',
-    eqId: '',
+    deviceId: '',
     acknowledged: '',
 })
 
 const columns = [
     { key: 'createdAt', label: '시각' },
-    { key: 'eqId', label: '장비' },
+    { key: 'deviceId', label: '장비' },
     { key: 'level', label: '등급', slot: true },
     { key: 'sensorName', label: '센서' },
     { key: 'sensorValue', label: '값' },
@@ -68,11 +68,11 @@ const columns = [
 ]
 
 const filters = computed(() => {
-    const eqOptions = Array.from(
-        new Set(alertStore.alertList.map((alert) => alert.eqId))
-    ).map((eqId) => ({
-        value: eqId,
-        label: eqId,
+    const deviceOptions = Array.from(
+        new Set(alertStore.alertList.map((alert) => alert.deviceId))
+    ).map((deviceId) => ({
+        value: deviceId,
+        label: deviceId,
     }))
 
     return [
@@ -85,9 +85,9 @@ const filters = computed(() => {
             ],
         },
         {
-            key: 'eqId',
+            key: 'deviceId',
             label: '장비',
-            options: eqOptions,
+            options: deviceOptions,
         },
         {
             key: 'acknowledged',
@@ -105,14 +105,14 @@ const filteredAlerts = computed(() => {
         const matchLevel =
             !filterValues.value.level || alert.level === filterValues.value.level
 
-        const matchEqId =
-            !filterValues.value.eqId || alert.eqId === filterValues.value.eqId
+        const matchDeviceId =
+            !filterValues.value.deviceId || alert.deviceId === filterValues.value.deviceId
 
         const matchAcknowledged =
             !filterValues.value.acknowledged ||
             String(alert.acknowledged) === filterValues.value.acknowledged
 
-        return matchLevel && matchEqId && matchAcknowledged
+        return matchLevel && matchDeviceId && matchAcknowledged
     })
 })
 

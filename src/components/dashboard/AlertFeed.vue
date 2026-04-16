@@ -11,7 +11,7 @@
                 :key="alert.alertId"
                 class="feed-item"
                 :class="{ 'is-acknowledged': alert.acknowledged }"
-                @click="goToDetail(alert.eqId)"
+                @click="goToDetail(alert.deviceId)"
             >
                 <span
                     class="feed-dot"
@@ -20,7 +20,7 @@
                 <div class="feed-body">
                     <div class="feed-line">
                         <span class="feed-time">{{ formatTime(alert.createdAt) }}</span>
-                        <span class="feed-eq">{{ alert.eqId }}</span>
+                        <span class="feed-eq">{{ alert.deviceId }}</span>
                         <span
                             class="feed-level"
                             :style="{ color: alert.acknowledged ? '#a0a4ad' : levelColor(alert.level) }"
@@ -86,9 +86,9 @@ function formatTime(createdAt) {
     return m ? m[1] : String(createdAt)
 }
 
-function goToDetail(eqId) {
-    if (eqId) {
-        router.push(`/dashboard/${eqId}`)
+function goToDetail(deviceId) {
+    if (deviceId) {
+        router.push(`/dashboard/${deviceId}`)
     }
 }
 </script>

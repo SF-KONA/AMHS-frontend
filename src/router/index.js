@@ -13,7 +13,7 @@ const routes = [
         meta: { requiresAuth: true },
     },
     {
-        path: '/dashboard/:eqId',
+        path: '/dashboard/:deviceId',
         name: 'equipment-detail',
         component: () => import('../views/equipment/EquipmentDetailView.vue'),
         meta: { requiresAuth: true },

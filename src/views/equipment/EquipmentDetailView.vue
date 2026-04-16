@@ -6,7 +6,7 @@
             <div class="detail-card">
                 <div class="detail-row">
                     <span class="detail-label">장비 ID</span>
-                    <span class="detail-value">{{ route.params.eqId }}</span>
+                    <span class="detail-value">{{ route.params.deviceId }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">장비 유형</span>
@@ -41,12 +41,12 @@
                 <div class="tab-body">
                     <SensorChartTab
                         v-if="activeTab === 'sensor'"
-                        :eq-id="route.params.eqId"
+                        :device-id="route.params.deviceId"
                     />
 
                     <AlertHistoryTab
                         v-else-if="activeTab === 'alert-history'"
-                        :eq-id="route.params.eqId"
+                        :device-id="route.params.deviceId"
                     />
                 </div>
             </div>
