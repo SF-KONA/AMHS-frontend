@@ -10,20 +10,22 @@
             </div>
 
             <div class="summary-cards">
-                <div class="summary-card">
-                    <div class="summary-label">Line 1</div>
-                    <div class="summary-value">가동률 80%</div>
-                    <div class="summary-sub">미처리 오더 2건</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-label">Line 2</div>
-                    <div class="summary-value">가동률 70%</div>
-                    <div class="summary-sub">미처리 오더 3건</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-label">Line 3</div>
-                    <div class="summary-value">가동률 90%</div>
-                    <div class="summary-sub">미처리 오더 1건</div>
+                <div
+                    v-for="line in allLines"
+                    :key="line.lineId"
+                    :class="['summary-card', { 'is-under-min': getLineUtil(line).isUnderMin }]"
+                >
+                    <div class="summary-label">{{ line.lineName }}</div>
+                    <div
+                        class="summary-value"
+                        :style="{ color: getLineUtil(line).isUnderMin ? 'var(--color-danger)' : 'var(--color-text)' }"
+                    >
+                        가동률 {{ getLineUtil(line).percent }}%
+                    </div>
+                    <div class="summary-sub">
+                        가동 {{ getLineUtil(line).running }}/{{ line.totalSlots }}
+                        · 미처리 오더 {{ getPendingOrderCount(line.lineId) }}건
+                    </div>
                 </div>
             </div>
 
@@ -49,9 +51,10 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMaintenanceStore } from '../../stores/maintenanceStore'
+import { useEquipmentStore } from '../../stores/equipmentStore'
 import AppLayout from '../../layouts/AppLayout.vue'
 import FilterBar from '../../components/common/FilterBar.vue'
 import DataTable from '../../components/common/DataTable.vue'
@@ -59,6 +62,35 @@ import DataTable from '../../components/common/DataTable.vue'
 const router = useRouter()
 
 const maintenanceStore = useMaintenanceStore()
+const equipmentStore = useEquipmentStore()
+
+// 전체 Line 목록 (fabs → lines flatten)
+const allLines = computed(() => {
+    return equipmentStore.fabs.flatMap((fab) => fab.lines || [])
+})
+
+// Line별 가동률 계산
+function getLineUtil(line) {
+    const devices = equipmentStore.equipmentList.filter((e) => e.lineId === line.lineId)
+    const running = devices.filter((e) => e.status === 'RUNNING').length
+    const total = line.totalSlots || 10
+    const percent = total > 0 ? Math.round((running / total) * 100) : 0
+    const isUnderMin = running < (line.minRunning || 7)
+    return { running, percent, isUnderMin }
+}
+
+// Line별 미처리(COMPLETED 제외) 오더 수
+function getPendingOrderCount(lineId) {
+    return maintenanceStore.orderList.filter(
+        (o) => o.lineId === lineId && o.status !== 'COMPLETED',
+    ).length
+}
+
+// store 데이터 보장
+onMounted(() => {
+    if (!equipmentStore.fabs.length) equipmentStore.fetchFabs()
+    if (!equipmentStore.equipmentList.length) equipmentStore.fetchEquipment()
+})
 
 
 const filterValues = ref({
@@ -207,7 +239,7 @@ function getOrderStatusClass(status) {
 
 .summary-cards {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
 }
 
@@ -216,6 +248,12 @@ function getOrderStatusClass(status) {
     border: 1px solid var(--color-border);
     border-radius: 12px;
     padding: 16px;
+    transition: border-color 0.2s;
+}
+
+.summary-card.is-under-min {
+    border-color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 4%, white);
 }
 
 .summary-label {
@@ -237,6 +275,12 @@ function getOrderStatusClass(status) {
 }
 
 @media (max-width: 900px) {
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
     .summary-cards {
         grid-template-columns: 1fr;
     }
