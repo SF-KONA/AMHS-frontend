@@ -1,6 +1,12 @@
 <template>
     <AppLayout>
         <div class="dashboard">
+            <!-- API 에러 배너 -->
+            <div v-if="store.error" class="error-banner">
+                {{ store.error }}
+                <button class="retry-button" @click="store.fetchEquipment()">재시도</button>
+            </div>
+
             <!-- Fab 상태 분포 도넛차트 (FE1 추가) -->
             <div class="fab-status-section">
                 <div class="fab-status-chart">
@@ -114,9 +120,10 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useEquipmentStore } from '../../stores/equipmentStore'
+import { useAlertStore } from '../../stores/alertStore'
 import AppLayout from '../../layouts/AppLayout.vue'
 import StatusDonutChart from '../../components/dashboard/StatusDonutChart.vue'
 import UtilizationGauge from '../../components/dashboard/UtilizationGauge.vue'
@@ -124,6 +131,7 @@ import AlertFeed from '../../components/dashboard/AlertFeed.vue'
 
 const router = useRouter()
 const store = useEquipmentStore()
+const alertStore = useAlertStore()
 
 const fabs = computed(() => store.fabs)
 const selectedFabId = computed(() => store.selectedFabId)
@@ -198,13 +206,20 @@ function goToDetail(deviceId) {
     router.push(`/dashboard/${deviceId}`)
 }
 
-onMounted(() => {
-    store.fetchFabs()
-    store.fetchEquipment()
-    // 첫 번째 Fab 자동 선택
-    if (!store.selectedFabId && store.fabs.length > 0) {
-        store.selectedFabId = store.fabs[0].fabId
-    }
+// 데이터 로드 후 첫 번째 Fab 자동 선택 (fabs가 비어있을 때만)
+watch(
+    () => store.fabs.length,
+    (len) => {
+        if (!store.selectedFabId && len > 0) {
+            store.selectedFabId = store.fabs[0].fabId
+        }
+    },
+)
+
+onMounted(async () => {
+    alertStore.fetchAlerts()
+    await store.fetchEquipment()
+    // fetchEquipment가 fabs까지 합성하므로 watch가 첫 Fab 선택
 })
 </script>
 
@@ -369,6 +384,38 @@ onMounted(() => {
 }
 
 /* === FE1 추가 === */
+
+/* 에러 배너 */
+.error-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: color-mix(in srgb, var(--color-danger) 8%, white);
+    border: 1px solid color-mix(in srgb, var(--color-danger) 30%, white);
+    border-radius: 8px;
+    color: var(--color-danger);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.retry-button {
+    margin-left: auto;
+    padding: 4px 12px;
+    border: 1px solid var(--color-danger);
+    background: white;
+    color: var(--color-danger);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.retry-button:hover {
+    background: var(--color-danger);
+    color: white;
+}
 
 /* Fab 상태 분포 도넛차트 섹션 */
 .fab-status-section {

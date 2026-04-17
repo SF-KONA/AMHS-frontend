@@ -5,6 +5,10 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AMHS | Monitoring System</title>
+    <!-- SockJS가 Node 환경의 global을 기대하는데 Vite는 브라우저 ESM이라 global이 없음. 폴리필. -->
+    <script>
+      window.global = window;
+    </script>
   </head>
   <body>
     <div id="app"></div>

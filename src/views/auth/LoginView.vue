@@ -29,8 +29,8 @@
                     {{ errorMessage }}
                 </p>
 
-                <button type="submit" class="login-button">
-                    로그인
+                <button type="submit" class="login-button" :disabled="isSubmitting">
+                    {{ isSubmitting ? '로그인 중...' : '로그인' }}
                 </button>
             </form>
 
@@ -54,8 +54,9 @@ const authStore = useAuthStore()
 const username = ref('')
 const password = ref('')
 const errorMessage = ref('')
+const isSubmitting = ref(false)
 
-function handleLogin() {
+async function handleLogin() {
     errorMessage.value = ''
 
     if (!username.value || !password.value) {
@@ -63,27 +64,22 @@ function handleLogin() {
         return
     }
 
-    if (username.value === 'admin' && password.value === '1234') {
-        authStore.login({
-            token: 'mock-admin-token',
-            user: { username: 'admin', name: '관리자' },
-            role: 'ADMIN',
-        })
-        router.push('/dashboard')
-        return
-    }
+    if (isSubmitting.value) return
+    isSubmitting.value = true
 
-    if (username.value === 'user' && password.value === '1234') {
-        authStore.login({
-            token: 'mock-user-token',
-            user: { username: 'user', name: '사용자' },
-            role: 'USER',
-        })
-        router.push('/dashboard')
-        return
+    try {
+        const result = await authStore.loginWithApi(
+            username.value.trim(),
+            password.value,
+        )
+        if (result.success) {
+            router.push('/dashboard')
+            return
+        }
+        errorMessage.value = result.message || '로그인에 실패했습니다.'
+    } finally {
+        isSubmitting.value = false
     }
-
-    errorMessage.value = '로그인 정보가 올바르지 않습니다.'
 }
 </script>
 

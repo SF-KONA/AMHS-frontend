@@ -20,7 +20,10 @@ http.interceptors.request.use((config) => {
 http.interceptors.response.use(
     (response) => response.data,
     (error) => {
-        if (error.response?.status === 401) {
+        const url = error.config?.url || ''
+        // 로그인 API 자체의 401은 inline 에러로 처리 (리다이렉트 루프 방지)
+        const isLoginApi = url.includes('/auth/login')
+        if (error.response?.status === 401 && !isLoginApi) {
             window.location.href = '/login'
         }
         return Promise.reject(error)
