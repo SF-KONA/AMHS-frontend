@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import DataTable from '../../components/common/DataTable.vue'
 import StatusBadge from '../../components/common/StatusBadge.vue'
 import { useAlertStore } from '../../stores/alertStore'
@@ -36,6 +36,12 @@ const props = defineProps({
 })
 
 const alertStore = useAlertStore()
+
+onMounted(() => {
+    if (!alertStore.loaded) {
+        alertStore.fetchAlerts()
+    }
+})
 
 const columns = [
     { key: 'createdAt', label: '시각' },

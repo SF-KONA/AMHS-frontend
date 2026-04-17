@@ -16,8 +16,12 @@
                 />
             </div>
         </div>
-        <p class="chart-note">
-            ※ mock 데이터 기반 1.5초 간격 슬라이딩 윈도우(60포인트). 실제 데이터는 WebSocket 연결 후 교체.
+        <p v-if="errorMessage" class="chart-note chart-note-error">
+            ※ {{ errorMessage }}
+        </p>
+        <p v-else class="chart-note">
+            ※ 초기 60포인트는 최근 센서 이력, 이후는 WebSocket 실시간 수신.
+            <span v-if="!isConnected" class="chart-note-warn">(WebSocket 연결 대기 중...)</span>
         </p>
     </div>
 </template>
@@ -33,11 +37,11 @@ import {
     MarkAreaComponent,
 } from 'echarts/components'
 import VChart from 'vue-echarts'
-import {
-    SENSOR_THRESHOLDS,
-    generateInitialReadings,
-    generateNextReading,
-} from '../../mocks/sensorReading'
+import http from '../../api/http'
+import { mapSensorReading } from '../../api/mappers'
+import { useWebSocket } from '../../composables/useWebSocket'
+// SENSOR_THRESHOLDS 상수만 mock 파일에서 가져옴 (BE 임계값 API 연동 시 교체 예정)
+import { SENSOR_THRESHOLDS } from '../../mocks/sensorReading'
 
 use([
     CanvasRenderer,
@@ -55,7 +59,6 @@ const props = defineProps({
 })
 
 const WINDOW_SIZE = 60
-const TICK_MS = 1500
 
 const COLORS = {
     normal: '#059669',
@@ -72,27 +75,68 @@ const CHART_CONFIGS = [
 ]
 
 const readings = ref([])
-let timer = null
+const errorMessage = ref('')
+const ws = useWebSocket()
+const isConnected = ws.isConnected
 
-function pushNext() {
-    const prev = readings.value[readings.value.length - 1]
-    const next = generateNextReading(prev)
+function pushReading(next) {
+    if (!next) return
     readings.value.push(next)
     if (readings.value.length > WINDOW_SIZE) {
         readings.value.shift()
     }
 }
 
-onMounted(() => {
-    readings.value = generateInitialReadings(WINDOW_SIZE, TICK_MS)
-    timer = setInterval(pushNext, TICK_MS)
+/**
+ * GET /api/equipments/{deviceId}/sensors/history
+ * 초기 60포인트 로드
+ */
+async function loadHistory(deviceId) {
+    if (!deviceId) return
+    errorMessage.value = ''
+    try {
+        const data = await http.get(`/api/equipments/${deviceId}/sensors/history`)
+        const list = Array.isArray(data) ? data : data?.history || []
+        readings.value = list.map(mapSensorReading).filter(Boolean).slice(-WINDOW_SIZE)
+    } catch (err) {
+        console.error(`[SensorChartTab] loadHistory(${deviceId}) failed:`, err)
+        errorMessage.value = '센서 이력을 불러오지 못했습니다.'
+        readings.value = []
+    }
+}
+
+/**
+ * WebSocket 구독: /topic/sensors/{deviceId}
+ * 메시지 shape이 history와 동일하다고 가정 (pm10, ntcTemp, ct1Current, irMaxTemp, timestamp)
+ */
+let currentTopic = null
+
+function subscribeTo(deviceId) {
+    if (!deviceId) return
+    unsubscribeCurrent()
+    currentTopic = `/topic/sensors/${deviceId}`
+    ws.subscribe(currentTopic, (msg) => {
+        const mapped = mapSensorReading(msg)
+        if (mapped) pushReading(mapped)
+    })
+}
+
+function unsubscribeCurrent() {
+    if (currentTopic) {
+        ws.unsubscribe(currentTopic)
+        currentTopic = null
+    }
+}
+
+onMounted(async () => {
+    await loadHistory(props.deviceId)
+    ws.connect()
+    subscribeTo(props.deviceId)
 })
 
 onUnmounted(() => {
-    if (timer) {
-        clearInterval(timer)
-        timer = null
-    }
+    unsubscribeCurrent()
+    // ws.disconnect()는 호출하지 않음 — 싱글톤이라 다른 화면이 쓸 수 있음
 })
 
 function currentValue(key) {
@@ -210,11 +254,13 @@ function hexToRgba(hex, alpha) {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
-// deviceId가 바뀌면 (다른 장비 상세로 이동) mock 윈도우 리셋
+// deviceId가 바뀌면 (다른 장비 상세로 이동) 재-fetch + 재-subscribe
 watch(
     () => props.deviceId,
-    () => {
-        readings.value = generateInitialReadings(WINDOW_SIZE, TICK_MS)
+    async (newId) => {
+        if (!newId) return
+        await loadHistory(newId)
+        subscribeTo(newId)
     },
 )
 </script>
@@ -275,6 +321,16 @@ watch(
     margin: 0;
     font-size: 11px;
     color: var(--color-text-muted);
+}
+
+.chart-note-error {
+    color: var(--color-danger);
+    font-weight: 600;
+}
+
+.chart-note-warn {
+    color: var(--color-warning);
+    margin-left: 4px;
 }
 
 @media (max-width: 900px) {

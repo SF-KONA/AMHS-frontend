@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import AppLayout from '../../layouts/AppLayout.vue'
 import FilterBar from '../../components/common/FilterBar.vue'
 import DataTable from '../../components/common/DataTable.vue'
@@ -50,6 +50,10 @@ import StatusBadge from '../../components/common/StatusBadge.vue'
 import { useAlertStore } from '../../stores/alertStore'
 
 const alertStore = useAlertStore()
+
+onMounted(() => {
+    alertStore.fetchAlerts()
+})
 
 const filterValues = ref({
     level: '',

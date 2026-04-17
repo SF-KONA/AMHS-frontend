@@ -85,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import AppLayout from '../../layouts/AppLayout.vue'
 import StatusBadge from '../../components/common/StatusBadge.vue'
@@ -97,9 +97,13 @@ const route = useRoute()
 const store = useEquipmentStore()
 const activeTab = ref('sensor')
 
-// 현재 장비 객체
+// 현재 장비 객체 — currentDevice(상세 API) 우선, 없으면 list에서 find (fallback)
 const device = computed(() => {
-    return store.equipmentList.find((e) => e.deviceId === route.params.deviceId) || null
+    const id = route.params.deviceId
+    if (store.currentDevice && store.currentDevice.deviceId === id) {
+        return store.currentDevice
+    }
+    return store.equipmentList.find((e) => e.deviceId === id) || null
 })
 
 // 소속 Fab 이름
@@ -111,9 +115,17 @@ const fabName = computed(() => {
 
 // store 데이터 보장 (대시보드 거치지 않고 직접 URL 진입 시)
 onMounted(() => {
-    if (!store.fabs.length) store.fetchFabs()
     if (!store.equipmentList.length) store.fetchEquipment()
+    store.fetchEquipmentDetail(route.params.deviceId)
 })
+
+// URL 파라미터 변경 시 상세 재-fetch (다른 장비로 이동)
+watch(
+    () => route.params.deviceId,
+    (newId) => {
+        if (newId) store.fetchEquipmentDetail(newId)
+    },
+)
 </script>
 
 <style scoped>
