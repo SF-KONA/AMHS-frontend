@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+.git
+.gitignore
+.env
+.env.local
+.env.*.local
+.vscode
+.idea
+.DS_Store
+*.md
+!DEPLOY.md
+*.log
+temp.txt
+CLAUDE.md

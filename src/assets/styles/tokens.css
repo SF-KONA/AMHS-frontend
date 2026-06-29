@@ -1,0 +1,14 @@
+:root {
+    /* 장비 상태 4색 */
+    --color-normal: #059669;
+    --color-interest: #2563eb;
+    --color-warning: #d97706;
+    --color-danger: #dc2626;
+
+    /* 기본 UI */
+    --color-bg: #f8f9fb;
+    --color-surface: #ffffff;
+    --color-border: #e2e5ea;
+    --color-text: #1a1d23;
+    --color-text-muted: #5a6070;
+}
